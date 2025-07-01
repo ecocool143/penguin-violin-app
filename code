@@ -1,0 +1,62 @@
+import streamlit as st
+
+import pandas as pd
+import plotly.express as px
+import seaborn as sns
+import random
+
+# Set title
+st.title("Joseph Taung")  
+
+# load the dataset from seaborn
+penguins = sns.load_dataset("penguins")
+penguins = penguins.dropna()
+
+# create random latitude and longitude columns for mapping
+island_coords = {
+    "Biscoe": (-63.8, -63.4),
+    "Dream": (-64.7, -62.9),
+    "Torgersen": (-64.8, -64.1)
+}
+
+latitudes = []
+longitudes = []
+
+for island in penguins["island"]:
+    lat = island_coords[island][0] + random.uniform(-0.1, 0.1)
+    lon = island_coords[island][1] + random.uniform(-0.1, 0.1)
+    latitudes.append(lat)
+    longitudes.append(lon)
+
+penguins["latitude"] = latitudes
+penguins["longitude"] = longitudes
+
+# scatter map
+fig_map = px.scatter_mapbox(
+    penguins,
+    lat="latitude",
+    lon="longitude",
+    color="species",
+    color_discrete_map={
+        "Adelie": "blue",
+        "Chinstrap": "red",
+        "Gentoo": "green"
+    },
+    zoom=5,
+    mapbox_style="open-street-map",
+    title="This is a plot of penguins based on the color of their poop"
+)
+st.plotly_chart(fig_map)
+
+# violin plot
+fig_violin = px.violin(
+    penguins,
+    x="species",
+    y="body_mass_g",
+    color="sex",
+    box=True,
+    points="all"
+)
+
+fig_violin.update_layout(title="Penguin Body Mass by Species and Sex")
+st.plotly_chart(fig_violin)
